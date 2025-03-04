@@ -8,7 +8,7 @@ app = cdk.App()
 
 app_stack = AppCdkStack(
     app,
-    'app-stack'
+    'app-stack',
 )
 
 pipeline_stack = PipelineCdkStack(
