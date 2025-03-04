@@ -1,0 +1,22 @@
+version: 0.2
+
+phases:
+  install:
+    runtime-versions:
+      python: latest
+  pre_build:
+    commands:
+      - echo Logging in to Amazon ECR...
+      - aws ecr get-login-password --region us-east-2 | docker login --username AWS --password-stdin 252137487660.dkr.ecr.us-east-2.amazonaws.com/ecr-stack-myapp0cc8c715-yj2ivgga1tjw
+  build:
+    commands:
+      - cd ./my-app
+      - echo Build started on `date`
+      - echo Building the Docker image...
+      - docker build -t myapp:latest .
+      - docker tag myapp:latetst 252137487660.dkr.ecr.us-east-2.amazonaws.com/ecr-stack-myapp0cc8c715-yj2ivgga1tjw:latest
+  post_build:
+    commands:
+      - echo Build completed on `date`
+      - echo Pushing the Docker image...
+      - docker push 252137487660.dkr.ecr.us-east-2.amazonaws.com/ecr-stack-myapp0cc8c715-yj2ivgga1tjw:latest
