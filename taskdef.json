@@ -1,5 +1,5 @@
 {
-    "executionRoleArn": "arn:aws:ecs:us-east-2:252137487660:task-definition/prodappstackserviceTaskDef3574354D:2",
+    "executionRoleArn": "arn:aws:iam::252137487660:role/prod-app-stack-serviceTaskDefExecutionRole39FD5935-QGWQTntIQ506",
     "containerDefinitions": [
         {
             "name": "my-app",
