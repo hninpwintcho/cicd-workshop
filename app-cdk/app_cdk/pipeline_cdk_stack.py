@@ -16,6 +16,8 @@ from aws_cdk import (
     aws_sns_subscriptions as subscriptions,
     aws_events as events,
     aws_events_targets as targets,
+    aws_lambda as lambda_,
+    aws_cloudwatch_actions as cloudwatch_actions,
 )
 
 class PipelineCdkStack(Stack):
@@ -345,3 +347,42 @@ class PipelineCdkStack(Stack):
             f"Execution ID: {events.EventField.from_path('$.detail.execution-id')}"
           )
         ))
+
+        # Add Lambda function that will call Slack Webhook
+        alarm_to_slack_lambda = lambda_.Function(
+            self,
+            id='AlarmToSlackLambda',
+            runtime=lambda_.Runtime.PYTHON_3_8,
+            code=lambda_.Code.from_asset('lib/'),
+            handler='index.lambda_handler',
+            environment={'SLACK_WEBHOOK_URL': 'https://hooks.slack.com/services/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'}
+        )
+
+        # Create CloudWatch Alarm
+        alarm = cloudwatch.Alarm(
+            self,
+            'Alarm',
+            alarm_name='MyAlarm',
+            metric=cloudwatch.Metric(
+                namespace="AWS/CodeBuild",
+                metric_name="QueuedDuration",
+                statistic='avg',
+                label='Duration',
+            ),
+            threshold=100,
+            evaluation_periods=1,
+            datapoints_to_alarm=1,
+        )
+       
+        # Create the SNS topic
+        topic = sns.Topic(self, id='CloudWatchAlarmTopic')
+        # Add a subscription to the Lambda function
+        topic.add_subscription(subscriptions.LambdaSubscription(alarm_to_slack_lambda))
+        # Add the SNS topic as an action for alarm state
+        alarm.add_alarm_action(cloudwatch_actions.SnsAction(topic))
+       
+        # Optional - Add the AlarmName as output to reference later during testing
+        CfnOutput(
+            self, 'AlarmName',
+            value=alarm.alarm_name
+        )
