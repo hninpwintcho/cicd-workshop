@@ -16,7 +16,7 @@ phases:
       - cd ./my-app
       - echo Build started on `date`
       - echo Building the Docker image...
-      - docker build -t myapp:latest .
+      - docker BreakTheBuild
       - docker tag myapp:latest 252137487660.dkr.ecr.us-east-2.amazonaws.com/ecr-stack-myapp0cc8c715-yj2ivgga1tjw:latest
   post_build:
     commands:
